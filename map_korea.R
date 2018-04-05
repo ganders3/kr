@@ -32,15 +32,3 @@ points =  data.frame(
 ) 
 
 gg + geom_point(data = points, aes(x = long, y = lat), color = "black", size = 1)
-
-
-cheese = function(x) {
-  if (x > 0) {
-    print('cheese')
-  } else {
-    print('beans')
-  }
-}
-  
-  
-  

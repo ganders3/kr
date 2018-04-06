@@ -1,24 +1,28 @@
 # Package downloader from https://stackoverflow.com/questions/17190103/offline-installation-of-r-packages
 # Set the packages you want to install as a char vector and the destination directory
-packages_to_install <- c("ggplot2", "shiny", "dplyr", "tidyr")
-dest_dir <- "C:/Users/joeha/Downloads/r_packages"
 
-getPackages <- function(packs){
-  packages <- unlist(
+#=========================================================
+PACKAGES_TO_INSTALL = c('ggplot2', 'shiny', 'dplyr', 'tidyr')
+DEST_DIR = '/destination/to/download' #/home/gregory/Downloads'
+#=========================================================
+
+getPackages = function(packageList){
+  dependentPackages = unlist(
     tools::package_dependencies(
-      packs
-      , available.packages()
-      , which=c("Depends", "Imports")
-      , recursive=TRUE
+      packageList,
+      available.packages(),
+      which = c('Depends', 'Imports'),
+      recursive = TRUE
     )
   )
-  packages <- union(packs, packages)
+  packages = union(packageList, dependentPackages)
   packages
 }
 
-Packages <- getPackages(packages_to_install)
+p = getPackages(PACKAGES_TO_INSTALL)
 
 download.packages(
-  pkgs=Packages
-  , destdir=dest_dir
-  , type="win.binary")
+  pkgs = p,
+  destdir = DEST_DIR,
+  type = 'win.binary'
+  )

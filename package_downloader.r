@@ -2,11 +2,11 @@
 # Set the packages you want to install as a char vector and the destination directory
 
 #=========================================================
-PACKAGES_TO_INSTALL = c('ggplot2', 'shiny', 'dplyr', 'tidyr')
-DEST_DIR = '/destination/to/download' #/home/gregory/Downloads'
+PACKAGES_TO_INSTALL = c('list', 'package', 'names') #c('ggplot2', 'shiny', 'dplyr', 'tidyr')
+DEST_DIR = '/destination/to/save/downloads/in' #/home/gregory/Downloads'
 #=========================================================
 
-getPackages = function(packageList){
+downloadPackages = function(packageList, downloadDirectory){
   dependentPackages = unlist(
     tools::package_dependencies(
       packageList,
@@ -16,13 +16,10 @@ getPackages = function(packageList){
     )
   )
   packages = union(packageList, dependentPackages)
-  packages
+
+  try(download.packages(
+      pkgs = packages,
+      destdir = downloadDirectory,
+      type = 'win.binary'
+      ))
 }
-
-p = getPackages(PACKAGES_TO_INSTALL)
-
-download.packages(
-  pkgs = p,
-  destdir = DEST_DIR,
-  type = 'win.binary'
-  )

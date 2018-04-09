@@ -1,0 +1,38 @@
+field,class
+Program Display,factor
+RIC,character
+Applicant,character
+ED Code MEPS,factor
+SSAN,integer
+DEP Date,Date
+Days in DEP,integer
+EAD From,Date
+EAD To,Date
+Sex,factor
+SJC,factor
+MEPS,factor
+AFSC Pref 1,factor
+AFSC Pref 2,factor
+AFSC Pref 3,factor
+AFSC Pref 4,factor
+AFSC Pref 5,factor
+AFSC Pref 6,factor
+AFSC Pref 7,factor
+AFSC Pref 8,factor
+AFSC Pref 9,factor
+AFSC Pref 10,factor
+AFSC Pref 11,factor
+AFSC Pref 12,factor
+AFSC Pref 13,factor
+AFSC Pref 14,factor
+AFSC Pref 15,factor
+AFSC Pref 16,factor
+AFSC Pref 17,factor
+AFSC Pref 18,factor
+AFSC Pref 19,factor
+AFSC Pref 20,factor
+ASVAB QT,integer
+ASVAB M,integer
+ASVAB A,integer
+ASVAB G,integer
+ASVAB E,integer

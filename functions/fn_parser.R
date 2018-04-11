@@ -22,7 +22,7 @@ findDataLines = function(tableName, lines) {
 
 
 
-createDataFrame = function(lines, delim, key) {
+createDataFrame = function(lines, delim, key, dateFormat) {
     
     #============================================================================
     PATTERNS_TO_REMOVE = c(
@@ -59,6 +59,8 @@ createDataFrame = function(lines, delim, key) {
     data[key$field[key$class == 'integer']] = lapply(data[key$field[key$class == 'integer']], as.integer)
     data[key$field[key$class == 'numeric']] = lapply(data[key$field[key$class == 'numeric']], as.numeric)
     data[key$field[key$class == 'character']] = lapply(data[key$field[key$class == 'character']], as.character)
+    
+    data[key$field[key$class == 'Date']] = lapply(data[key$field[key$class == 'Date']], function(x) as.POSIXct(x, format = dateFormat))
     
     return(data)
 }

@@ -58,6 +58,7 @@ RATIO = 1
                       size = 12,
                       `selected-text-format` = "count >3"
                     ),
+                    selected = unique(data$goal),
                     multiple =TRUE
                     ),
         pickerInput(inputId = "typePicker",
@@ -68,6 +69,7 @@ RATIO = 1
                       size = 12,
                       `selected-text-format` = "count >3"
                     ),
+                    selected = unique(data$type),
                     multiple =TRUE
         )
       ),
@@ -88,7 +90,12 @@ server <- function(input, output) {
     #req(input$goalPicker)
     #req(input$typePicker)
     data %>% filter((goal %in% input$goalPicker| 
-                      type %in% input$typePicker))
+                      type %in% input$typePicker) &  
+                      (date >= input$datetime[1] & 
+                         date <= input$datetime[2])
+                    )
+                      
+    
     
   })
   
@@ -103,8 +110,8 @@ server <- function(input, output) {
   })
   
   
-  output$from <- renderText(input$timeRange[1])
-  output$to <- renderText(input$timeRange[2])
+  output$from <- renderText(input$datetime[1])
+  output$to <- renderText(input$datetime[2])
   observeEvent(input$update, {
     updateSliderInput(session, "timeRange", 
       value = c(

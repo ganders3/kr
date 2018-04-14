@@ -17,7 +17,7 @@ library(mapdata)
 library(maps)
 library(shinyWidgets)
 
-data<- read_csv("testdataMakeup.csv")
+data<- read_csv("/home/gregory/kr/testdataMakeup.csv")
 m = map_data('worldHires')
 
 countries = m %>%

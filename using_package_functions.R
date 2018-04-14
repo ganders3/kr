@@ -1,7 +1,7 @@
 #=========================================================
 source('/home/gregory/kr/functions/fn_packages.R')
 
-PACKAGES_TO_INSTALL = c('ggplot2', 'shiny', 'dplyr', 'tidyr')
+PACKAGES_TO_INSTALL = c('tcltk2')
 DOWNLOAD_DIR = '/home/gregory/Downloads'
 #=========================================================
 

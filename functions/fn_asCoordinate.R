@@ -1,32 +1,25 @@
+library(stringr)
+
 asCoordinate = function(string, stringFormat) {
     h = 'h'
     m = 'mm'
     s = 'ss'
-    numbersLength = string %>% str_extract_all('[0-9]') %>% unlist() %>% length()
-    if (numbersLength == 7) {
-        d = 'ddd'
-    } else {
-        d = 'dd'
-    }
-    
-    pattern = stringFormat %>%
-        str_replace('%h', h) %>%
-        str_replace('%d', d) %>%
-        str_replace('%m', m) %>%
-        str_replace('%s', s)
-    
-    patternH = pattern %>% str_replace_all('[^h]', 'x')
-    patternD = pattern %>% str_replace_all('[^d]', 'x')
-    patternM = pattern %>% str_replace_all('[^m]', 'x')
-    patternS = pattern %>% str_replace_all('[^s]', 'x')
-    
+    numbersLength = string %>% str_extract_all('[0-9]') %>% lapply(function(x) length(x))
+    d = ifelse(numbersLength == 7, 'ddd',
+               ifelse(numbersLength == 6, 'dd', ''))
+    print(d)
+    patternH = stringFormat %>% str_replace_all('[^(%h)]', 'x') %>% str_replace('(%h)', h)
+    patternD = stringFormat %>% str_replace_all('[^(%d)]', 'x') %>% str_replace('(%d)', d)
+    patternM = stringFormat %>% str_replace_all('[^(%m)]', 'x') %>% str_replace('(%m)', m)
+    patternS = stringFormat %>% str_replace_all('[^(%s)]', 'x') %>% str_replace('(%s)', s)
+
     hemisphere = string %>% str_sub(patternH %>% str_locate(h)) %>% tolower()
     degree = string %>% str_sub(patternD %>% str_locate(d)) %>% as.numeric()
     minute = string %>% str_sub(patternM %>% str_locate(m)) %>% as.numeric
     second = string %>% str_sub(patternS %>% str_locate(s)) %>% as.numeric()
     
-    output = degree + (minute/60) + (second/3600)
-    if (hemisphere %in% c('s', 'w')) {output = -1*output}
+    sign = ifelse(hemisphere %in% c('s', 'w'), -1, 1)
+    output = sign*(degree + (minute/60) + (second/3600))
     return(output)
 }
 
@@ -42,5 +35,5 @@ coords = paste0(
 ) %>% matrix(nrow = n) %>% data.frame()
 f = '%d-%m-%s%h'
 
-coords = cbind(sample(c('a', 'b', 'c'), n, replace = T), coords, coords)
-coords[2:3] = coords[2:3] %>% apply(c(1,2), function(x) asCoordinate(x, f))
+coords = cbind(coords, coords)
+coords[2] = coords[2] %>% lapply(function(x) asCoordinate(x, f))

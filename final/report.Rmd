@@ -1,0 +1,144 @@
+---
+title: 'Put Title Here'
+latex_engine: pdflatex
+output: pdf_document:
+header-includes:
+- \usepackage{pdflscape}
+- \usepackage{fancyhdr}
+- \usepackage{lipsum}
+- \usepackage{xcolor}
+- \newcommand{\blandscape}{\begin{landscape}}
+- \newcommand{\elandscape}{\end{landscape}}
+- \pagestyle{fancy}
+- \fancyheader[CO,CE]{\textbf{\textcolor{red}{EXERCISE SECRET ROKUS RelUS ROK}}}
+- \fancyfoot[CO,CE]{\textbf{\textcolor{red}{EXERCISE SECRET ROKUS RelUS ROK}}}
+- \fancyfoot[LE,RO]{\thepage}
+
+df_print: default
+---
+
+```{r echo = F, message = F, include = F}
+library(shiny)
+library(shinythemes)
+library(dplyr)
+library(readr)
+library(ggmap)
+library(ggplot2)
+library(mapdata)
+library(maps)
+library(shinyWidgets)
+library(stringr)
+library(knitr)
+
+#================== select data source =========================
+load(data)
+load('query_data1.RData')
+data1
+data2
+
+# Create data frame that only includes the most recent (ie, max(TIME)) location
+current_data1 = data1 %>%
+  filter(Time == max(Time))
+```
+
+\newpage
+<!-- Creates a data structure for the map points -->
+```{r echo = F}
+
+# Load map data
+m = map_data('worldHires')
+
+# Create data frame for Korea
+# lat limits the view displayed
+korea = m %>%
+  filter(region %in% c('North Korea', 'South Korea'),
+         lat >= 37.4 & lat < 43)
+
+# This is the lat/lon ratio displayed in the map
+# Using RATIO = 1 creates lat:lon in a 1:1 ratio (squares)
+RATIO = 1.5
+```
+
+<!-- Plot -->
+```{r Chart, echo = F, fig.height = 10, fig.width = 8}
+
+# Build the layers for the plot from back to front
+# Background
+ggplot() +
+  
+  #Title
+  ggtitle('as of 00:00') +
+  
+  # Map of countries
+  geom_polygon(data = korea,
+               aes(x = long, y = lat, group = group),
+               fill = 'white', color = 'black') +
+  
+  # Plot the original locations
+  # geom_point(data = ORIGINAL_LOCATION,
+  #            aes(x = LONGITUDE, y = LATITUDE, shape = TYPE), col = 'gray', alpha = '0.05', size = 5) +
+  # scale_shape_manual(values = c(SA2 = 1, SA3 = 2, SA5 = 0)) +
+  
+  # Plot most recent location
+  geom_point(data = current_data,
+             # Maps the columns in the data to the plot attributes (eg, fill is determined by the 'MOVED' column)
+             aes(x = LONGITUDE, y = LATITUDE, shape = TYPE, col = STAT, fill = MOVED),
+             size = 5) +
+  
+  # Shapes of icons
+  scale_shape_manual(values = c()) +
+  
+  # Color by status
+  scale_color_manual(values = c()) +
+  
+  # Fill based on MOVED
+  scale_fill_manual(values = c('no' = 'NA', 'yes' = 'yellow'), guide = F) +
+  
+  # Plot the hits
+  geom_point(data = data2,
+             aes(x = LONGITUDE, y = LATITUDE),
+             col = 'red', shape = 4) +
+  
+  # Turn on the labels (could turn on hovers)
+  # geom_text(data = data, aes(x = LONGITUDE, y = LATITUDE, label = UNITNAME), size = 3, hjust = 0) +
+  
+  # Specify the map distortion
+  coord_fixed(RATIO)
+```
+
+
+\newpage
+<!-- Creates a figure with a label that loads the weather image -->
+![Weather](weather.png)
+
+<!-- Creates a summary table for types and hits -->
+```{r echo = F, message = F, results = 'asis'}
+
+s1 = data %>%
+  select(NAME, TYPE, STAT, TIME) %>%
+  # Use the most recent status
+  filter(TIME == max(TIME)) %>%
+  # group table
+  group_by(TYPE) %>%
+  summarize(Op, No, Total = n())
+  
+  # Create summary table
+  kable(s1, caption = 'status')
+```
+  
+<!-- Generates a table with weapon expenditure by system -->
+```{r echo = F, message = F}
+
+d1 = hits %>%
+  select(TOT, LATITUDE, LONGITUDE, TYPE, TYPES) %>%
+  
+  # Enter range of times to filter
+  # To filter entire data set:
+    # filter(TOT <= max(TOT), TOT >= min(TOT))
+  filter(TOT <= max(TOT), TOT >= min(TOT)) %>%
+  group_by(TYPE) %>%
+  summarize(NUMBER = n())
+
+# Generate the table
+kable(d1, caption = 'Types and numbers')
+```

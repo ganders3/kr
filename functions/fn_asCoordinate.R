@@ -57,20 +57,3 @@ replaceNot = function(string, findNot, replace) {
     )
     return(output)
 }
-
-n = 100
-coords = paste0(
-    round(180*runif(n)) %>% str_pad(width = 2, side = 'left', pad = '0'),
-    '-',
-    round(60*runif(n)) %>% str_pad(width = 2, side = 'left', pad = '0'),
-    '-',
-    round(60*runif(n)) %>% str_pad(width = 2, side = 'left', pad = '0'),
-    sample(c('N', 'S', 'E', 'W'), n, replace = T)
-    
-) %>% matrix(nrow = n) %>% data.frame()
-f = '%d-%m-%s%h'
-
-coords = cbind(coords, coords)
-coords[2] = coords[2] %>% lapply(function(x) asCoordinate(x, f))
-
-

@@ -133,8 +133,144 @@ loadRDataFiles = function(path, dfPattern, whichData) {
 }
 
 readNewDataFiles = function(path, filesRead, dfPattern, keyPattern, whichData, fileType) {
+  print(strrep('=', 100))
+  print('This might take a while...go get a beer.')
+  print(paste0('Reading raw data from ', path))
+  
+  nFilesRead = 0
+  nNewFiles = dir(path) %>% match(files_read) %>% is.na() %>% which() %>% length()
+  for (file in dir(path)) {
+    print(strrep('=', 100))
+    print(paste0('Reading file ', file))
+    
+    fileType = tolower(fileType)
+    if (fileType != 'astab' $ fileType != 'jquad') {fileType = 'jquad'}
+    
+    # If the file has not yet been read...
+    if (check == T) {
+      # Read the data lines from the file location
+      allLines = readLines(paste0(path, '\\', file))
+      
+      for (i in whichData) {
+        print(strrep('-', 100))
+        print(paste0('Building ', dfPattern, i))
+        
+        tempName = paste0('temp_', dfPattern, i)
+        key = get(paste0(keyPattern, i))
+        
+        
+        tempData = get(tempName)
+        print(paste0('Current data frame has ', nrow(tempData), ' rows.'))
+        
+        if (fileType == 'astab') {
+          newData = allLines %>% findDataLinesAstab(i) %>% createDataFrameAstab()
+        } else if (fileType = 'jquad') {
+          newData = allLines %>% findDataLinesJQ(ALL_JQ_TABLES[[i]]) %>% createDataFrameJQ()
+        }
+        
+        print(paste0('New file has ', nrow(newData), ' data rows.'))
+        
+        assign(paste0('a_', dfPattern, i), newData, envir = .GlobalEnv)
+        if (nrow(newData) > 0) {
+          if (ncol(tempData) == ncol(newData)) {
+            if (!all(colnames(tempData) == colnames(newData))) {
+              print('Warning: Column names do not match. Coercing them to be the same.')
+              colnames(newData) = colNames(tempData)
+            }
+            tempData = rbind(tempData, newData)
+            assign('checktemp', tempData)
+            nDup = nrow(tempData) - nrow(unique(tempData))
+            print(paste0('Removing ', nDup, ' duplicate rows.'))
+            tempData = unique(tempData) %>% setDataFrameNames(key)
+          } else {
+            print('Mismatched number of columns. Not appending this file.')
+          }
+        }
+        tempData = setDataFrameNames(tempData, key)
+        assign(tempName, tempData, envir = .GlobalEnv)
+      }
+      
+      # Append the list of files that have been read
+      files_read = c(files_read, file)
+      # and increment the number of files read
+      nFilesRead = nFilesRead + 1
+    } else {
+      print(paste0('File has previously been read.'))
+    }
+    
+    assignTempToDf(paste0('temp_', dfPattern), dfPattern, whichData)
+  }
+  print(strrep('=', 100))
+  print(paste0('New files read: ', nFilesRead))
+  assign('files_read', files_read, envir = .GlobalEnv)
+  
+  rm(list = ls(pattern = 'temp_'))
+}
+
+# Output a similarly unformatted list of lines containing only the lines of interest
+fileDataLinesAstab = function(lines, astabNumber) {
+  
+  #=====================================================
+  # The pattern containing the table name - looks something like:
+  ASTAB_PATTERN = 'pattern containing table'
+  NUM_ASTAB = 28
+  #=====================================================
+  
+  # Create a regex pattern to find the ASTAB number of interest
+  thisTablePattern = ASTAB_PATTERN %>% str_replace('ASTAB_NUM', as.character(astabNumber))
+  # Create regex patterns for any ASTAB number, and combine all of these patterns with | (the regex way of designating "or")
+  allTablePatterns = ASTAB_PATTERN %>% rep(NUM_ASTAB) %>% str_replace('ASTAB_NUM', as.character(1:NUM_ASTAB)) %>% paste(collapse = '|')
+  
+  # Find all rows containing the table name line, for the astabNumber of interest
+  thisTableRows = grep(thisTablePattern, lines)
+  # The start row is the first row containing these lines
+  startRow = thisTableRows %>% min()
+  
+  # Find all rows containing any table name lines
+  allTableRows = grep(allTablePatterns, lines)
+  # The end row is the minimum of...
+  endRow = min(
+    # ... the rows containing a table name line which are AFTER the last line of the table of interest, or...
+    c(allTableRows[allTableRows > max(thisTableRows)] - 1,
+      # ...if there is no table after the table of interest, the length of the data lines (this applies to the last ASTAB in the data)
+      length(lines))
+  )
+  
+  # If the end row is greater than the start row (at least 1 line of data was found)...
+  if (startRow < endRow) {
+    # Return these data lines
+    return(lines[startRow:endRow])
+  } else {
+    # Otherwise return an empty list
+    return(list())
+  }
+}
+
+findDataLinesJQ = function(lines, tableName) {
   
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

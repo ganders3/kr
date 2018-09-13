@@ -1,9 +1,0 @@
-field,class
-AFSC,factor
-AWG,factor
-EAD,Date
-Organization ID/Owner,factor
-Seats Released,integer
-Seats Sold,integer
-Seats Remaining,integer
-Scheduled,character
